@@ -1,0 +1,239 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+.patients-list {
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-shell,
+.app-header,
+.app-bottom-nav,
+.app-shell main > div,
+.app-shell main > section,
+.app-shell main article,
+.app-shell main form {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.dark .app-bottom-nav {
+  background-color: color-mix(in srgb, var(--color-slate-900) 70%, transparent);
+  border-color: color-mix(in srgb, white 10%, transparent);
+}
+
+.glass-card {
+  border: 1px solid rgb(226 232 240 / 70%);
+  background-color: rgb(255 255 255 / 95%);
+  box-shadow: 0 1px 2px rgb(203 213 225 / 40%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.dark .glass-card {
+  border-color: rgb(255 255 255 / 10%);
+  background-color: rgb(15 23 42 / 80%);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-modal {
+  border: 1px solid rgb(255 255 255 / 40%);
+  background-color: rgb(255 255 255 / 85%);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+}
+
+.dark .glass-modal {
+  border-color: rgb(255 255 255 / 15%);
+  background-color: rgb(15 23 42 / 85%);
+}
+
+.dark .bg-white {
+  background-color: rgb(15 23 42 / 80%);
+}
+
+.patients-search {
+  background-color: rgb(255 255 255 / 50%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .patients-search {
+  background-color: rgb(30 41 59 / 50%);
+}
+
+.dark .bg-slate-50 {
+  background-color: rgb(15 23 42 / 80%);
+}
+
+.dark .bg-slate-100 {
+  background-color: var(--color-slate-800);
+}
+
+.dark .bg-slate-200\/70 {
+  background-color: color-mix(in srgb, var(--color-slate-700) 70%, transparent);
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-100 {
+  background-color: color-mix(in srgb, var(--color-sky-950) 58%, var(--color-slate-800));
+}
+
+.dark .bg-indigo-50 {
+  background-color: color-mix(in srgb, var(--color-indigo-950) 58%, var(--color-slate-800));
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: color-mix(in srgb, var(--color-emerald-950) 58%, var(--color-slate-800));
+}
+
+.dark .bg-rose-50 {
+  background-color: color-mix(in srgb, var(--color-rose-950) 58%, var(--color-slate-800));
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: color-mix(in srgb, var(--color-amber-950) 58%, var(--color-slate-800));
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border {
+  border-color: var(--color-slate-700);
+}
+
+.dark .text-slate-800 {
+  color: #fff;
+}
+
+.dark .text-slate-700 {
+  color: var(--color-slate-200);
+}
+
+.dark .text-slate-600 {
+  color: var(--color-slate-300);
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: var(--color-slate-400);
+}
+
+.dark .text-sky-700,
+.dark .text-sky-600 {
+  color: var(--color-sky-300);
+}
+
+.dark .text-emerald-700,
+.dark .text-emerald-600 {
+  color: var(--color-emerald-300);
+}
+
+.dark .text-rose-700,
+.dark .text-rose-600 {
+  color: var(--color-rose-300);
+}
+
+.dark .text-amber-700,
+.dark .text-amber-600 {
+  color: var(--color-amber-300);
+}
+
+.dark .text-indigo-600 {
+  color: var(--color-indigo-300);
+}
+
+.dark .divide-slate-100 > :not(:last-child) {
+  border-color: var(--color-slate-700);
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  color-scheme: dark;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--color-slate-500);
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200:hover {
+  background-color: var(--color-slate-700);
+}
+
+@media (max-height: 700px) {
+  .appointment-form {
+    padding: 0.75rem;
+  }
+
+  .appointment-form > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.5rem;
+  }
+
+  .appointment-form > header {
+    margin-bottom: 0.5rem;
+  }
+
+  .appointment-form textarea {
+    height: 3.25rem;
+  }
+
+  .appointment-form button[type='submit'] {
+    margin-top: 0.75rem;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px))) {
+  .glass-card,
+  .glass-modal,
+  .app-header,
+  .app-bottom-nav,
+  .patients-search {
+    background-color: rgb(255 255 255 / 95%);
+  }
+
+  .dark .glass-card,
+  .dark .glass-modal,
+  .dark .app-header,
+  .dark .app-bottom-nav,
+  .dark .patients-search {
+    background-color: rgb(15 23 42 / 95%);
+  }
+}
+
+.dark .app-shell {
+  background-color: #0b0f17;
+}
+
+.app-shell :where(label, .text-xs.text-slate-400, .text-xs.text-slate-500) {
+  color: var(--color-slate-600);
+}
+
+.dark .app-shell :where(label, .text-xs.text-slate-400, .text-xs.text-slate-500) {
+  color: var(--color-slate-400);
+}
