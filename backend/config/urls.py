@@ -7,5 +7,5 @@ admin.site.index_title = "Klinika boshqaruv paneli"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('clinic.urls')),
+    path('', include('clinic.urls')),
 ]
