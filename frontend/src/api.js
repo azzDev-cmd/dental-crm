@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Backend manzili
-const API_BASE_URL = 'https://dental-crm-backend-5161.onrender.com/';
+const API_BASE_URL = 'https://dental-crm-backend-5161.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
