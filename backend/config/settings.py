@@ -131,5 +131,5 @@ TELEGRAM_ADMIN_IDS = frozenset(
 )
 
 # CORS settings for Frontend & Telegram Mini App (TMA)
-CORS_ALLOW_ALL_ORIGINS = ["https://dental-crm-delta.vercel.app"]
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
