@@ -133,5 +133,4 @@ TELEGRAM_ADMIN_IDS = frozenset(
 # CORS settings for Frontend & Telegram Mini App (TMA)
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
 APPEND_SLASH = True
