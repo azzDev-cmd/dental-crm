@@ -13,13 +13,15 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dental-clinic-super-secret
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-RENDER_HOST = 'dental-crm-backend-5161.onrender.com'
+RENDER_HOST = 'dental-crm-backend-516l.onrender.com'
 DEFAULT_ALLOWED_HOSTS = f'{RENDER_HOST},localhost,127.0.0.1'
 configured_allowed_hosts = [
     host.strip()
     for host in os.getenv('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
     if host.strip()
 ]
+if not configured_allowed_hosts:
+    raise ValueError('ALLOWED_HOSTS must contain at least one host.')
 if not DEBUG and '*' in configured_allowed_hosts:
     warnings.warn(
         "Ignoring '*' in ALLOWED_HOSTS because DEBUG is disabled; "
@@ -30,12 +32,10 @@ if not DEBUG and '*' in configured_allowed_hosts:
     configured_allowed_hosts = [
         host for host in configured_allowed_hosts if host != '*'
     ]
-    if RENDER_HOST not in configured_allowed_hosts:
-        configured_allowed_hosts.append(RENDER_HOST)
+if RENDER_HOST not in configured_allowed_hosts:
+    configured_allowed_hosts.append(RENDER_HOST)
 
 ALLOWED_HOSTS = configured_allowed_hosts
-if not ALLOWED_HOSTS:
-    raise ValueError('ALLOWED_HOSTS must contain at least one host.')
 
 # Application definition
 INSTALLED_APPS = [

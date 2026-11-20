@@ -6,12 +6,12 @@ Configure these values in `backend/.env`; never put the bot token in frontend co
 TELEGRAM_BOT_TOKEN=your-bot-token
 TELEGRAM_BOT_USERNAME=your_bot_username
 TELEGRAM_WEBHOOK_SECRET=long-random-webhook-secret
-TELEGRAM_WEBHOOK_URL=https://dental-crm-backend-5161.onrender.com/api/telegram/webhook/
+TELEGRAM_WEBHOOK_URL=https://dental-crm-backend-516l.onrender.com/api/telegram/webhook/
 TELEGRAM_ADMIN_IDS=123456789,987654321
 ```
 
 For production, set `DEBUG=False`, include
-`dental-crm-backend-5161.onrender.com` in `ALLOWED_HOSTS`, and set
+`dental-crm-backend-516l.onrender.com` in `ALLOWED_HOSTS`, and set
 `CORS_ALLOWED_ORIGINS=https://dental-crm-delta.vercel.app` (additional
 comma-separated origins are supported). The API is mounted at `/api/`; API
 requests should use trailing slashes.
