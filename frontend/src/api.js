@@ -1,22 +1,20 @@
 import axios from 'axios';
 
-// Backend manzili
-const API_BASE_URL = 'https://dental-crm-backend-5161.onrender.com/api';
+const configuredApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+const apiUrl = (
+  configuredApiUrl ||
+  (import.meta.env.DEV ? '/api' : 'https://dental-crm-backend-5161.onrender.com/api')
+).replace(/\/+$/, '');
+const API_BASE_URL = /\/api$/i.test(apiUrl) ? apiUrl : `${apiUrl}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json/',
-    'Cache-Control': 'no-cache',
-    Pragma: 'no-cache',
+    Accept: 'application/json',
   },
 });
 
 const noCacheParams = (params = {}) => ({
-  headers: {
-    'Cache-Control': 'no-cache',
-    Pragma: 'no-cache',
-  },
   params: {
     ...params,
     _t: Date.now(),

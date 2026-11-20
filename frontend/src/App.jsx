@@ -247,8 +247,11 @@ export default function App() {
   }, [theme]);
   const [todayData, setTodayData] = useState({ results: [], count: 0 });
   const [stats, setStats] = useState(null);
+  const [dashboardLoadError, setDashboardLoadError] = useState('');
   const [selectedDate, setSelectedDate] = useState(getLocalDateString);
   const [patients, setPatients] = useState([]);
+  const [patientsLoading, setPatientsLoading] = useState(false);
+  const [patientsLoadError, setPatientsLoadError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -358,6 +361,7 @@ export default function App() {
       ]);
       if (requestId === dashboardRequestId.current) {
         const appointments = appointmentsRes.data.results || appointmentsRes.data;
+        setDashboardLoadError('');
         setTodayData({
           date,
           count: appointmentsRes.data.count ?? appointments.length,
@@ -367,7 +371,13 @@ export default function App() {
       }
       return true;
     } catch (err) {
-      console.error("Ma'lumot yuklashda xatolik:", err);
+      console.error('Dashboard request failed:', err);
+      if (requestId === dashboardRequestId.current) {
+        const status = err.response?.status;
+        setDashboardLoadError(t('dashboardLoadFailed', {
+          status: status ? ` (${status})` : '',
+        }));
+      }
       return false;
     } finally {
       if (requestId === dashboardRequestId.current) {
@@ -378,15 +388,31 @@ export default function App() {
 
   const fetchPatients = async (query = '') => {
     const requestId = ++patientRequestId.current;
+    setPatientsLoading(true);
+    setPatientsLoadError('');
     try {
       const res = await dentalApi.getPatients(query);
+      const data = Array.isArray(res.data) ? res.data : res.data?.results;
+      if (!Array.isArray(data)) {
+        throw new Error('Patients API returned an unexpected response.');
+      }
       if (requestId === patientRequestId.current) {
-        setPatients(res.data.results || res.data);
+        setPatients(data);
       }
       return true;
     } catch (err) {
-      console.error(err);
+      console.error('Patients request failed:', err);
+      if (requestId === patientRequestId.current) {
+        const status = err.response?.status;
+        setPatientsLoadError(t('patientsLoadFailed', {
+          status: status ? ` (${status})` : '',
+        }));
+      }
       return false;
+    } finally {
+      if (requestId === patientRequestId.current) {
+        setPatientsLoading(false);
+      }
     }
   };
 
@@ -826,6 +852,27 @@ export default function App() {
           ? 'flex flex-col items-center justify-center'
           : 'flex flex-col space-y-3'
       }`}>
+        {(activeTab === 'today' && dashboardLoadError
+          || ['patients', 'add'].includes(activeTab) && patientsLoadError) && (
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700"
+          >
+            <span>
+              {activeTab === 'today' ? dashboardLoadError : patientsLoadError}
+            </span>
+            <button
+              type="button"
+              onClick={() => activeTab === 'today'
+                ? fetchDashboardData(selectedDate)
+                : fetchPatients(searchQuery)}
+              disabled={activeTab === 'today' ? loading : patientsLoading}
+              className="shrink-0 font-semibold underline disabled:opacity-60"
+            >
+              {t('refreshData')}
+            </button>
+          </div>
+        )}
         {activeTab === 'patients' && (
           <div className="flex items-center gap-3">
             <div className="relative min-w-0 flex-1">
@@ -1070,6 +1117,16 @@ export default function App() {
         {/* EKRAN 2: BEMORLAR RO'YXATI */}
         {activeTab === 'patients' && (
           <div className="patients-list space-y-2.5 pt-0">
+              {patientsLoading && patients.length === 0 ? (
+                <p className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  {t('loading')}
+                </p>
+              ) : !patientsLoading && !patientsLoadError && patients.length === 0 ? (
+                <p className="py-8 text-center text-sm text-slate-500">
+                  {t('noPatientsFound')}
+                </p>
+              ) : null}
               {patients.map((p) => (
                 <button
                   type="button"

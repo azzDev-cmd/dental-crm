@@ -1,5 +1,13 @@
 # React + Vite
 
+## API configuration
+
+The production frontend calls `https://dental-crm-backend-5161.onrender.com/api`.
+Set `VITE_API_BASE_URL` to that value in Vercel if you want to configure it
+explicitly; `frontend/.env.example` shows the expected format. For local Vite
+development, the default `/api` base uses the proxy in `vite.config.js` and
+forwards requests to `http://127.0.0.1:8000`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

@@ -10,9 +10,20 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dental-clinic-super-secret-key-change-in-prod')
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '*').split(',') if host.strip()]
+DEFAULT_ALLOWED_HOSTS = (
+    'dental-crm-backend-5161.onrender.com,localhost,127.0.0.1'
+)
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
+    if host.strip()
+]
+if not ALLOWED_HOSTS:
+    raise ValueError('ALLOWED_HOSTS must contain at least one host.')
+if not DEBUG and '*' in ALLOWED_HOSTS:
+    raise ValueError("ALLOWED_HOSTS cannot contain '*' when DEBUG is disabled.")
 
 # Application definition
 INSTALLED_APPS = [
@@ -131,6 +142,13 @@ TELEGRAM_ADMIN_IDS = frozenset(
 )
 
 # CORS settings for Frontend & Telegram Mini App (TMA)
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    origin.strip().rstrip('/')
+    for origin in os.getenv(
+        'CORS_ALLOWED_ORIGINS',
+        'https://dental-crm-delta.vercel.app,http://localhost:5173,http://127.0.0.1:5173',
+    ).split(',')
+    if origin.strip()
+]
+CORS_ALLOW_ALL_ORIGINS = False
 APPEND_SLASH = True
