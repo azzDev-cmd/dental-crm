@@ -1,4 +1,5 @@
 import os
+import warnings
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -12,18 +13,29 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dental-clinic-super-secret
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-DEFAULT_ALLOWED_HOSTS = (
-    'dental-crm-backend-5161.onrender.com,localhost,127.0.0.1'
-)
-ALLOWED_HOSTS = [
+RENDER_HOST = 'dental-crm-backend-5161.onrender.com'
+DEFAULT_ALLOWED_HOSTS = f'{RENDER_HOST},localhost,127.0.0.1'
+configured_allowed_hosts = [
     host.strip()
     for host in os.getenv('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
     if host.strip()
 ]
+if not DEBUG and '*' in configured_allowed_hosts:
+    warnings.warn(
+        "Ignoring '*' in ALLOWED_HOSTS because DEBUG is disabled; "
+        f"using the explicit Render host {RENDER_HOST}.",
+        RuntimeWarning,
+        stacklevel=2,
+    )
+    configured_allowed_hosts = [
+        host for host in configured_allowed_hosts if host != '*'
+    ]
+    if RENDER_HOST not in configured_allowed_hosts:
+        configured_allowed_hosts.append(RENDER_HOST)
+
+ALLOWED_HOSTS = configured_allowed_hosts
 if not ALLOWED_HOSTS:
     raise ValueError('ALLOWED_HOSTS must contain at least one host.')
-if not DEBUG and '*' in ALLOWED_HOSTS:
-    raise ValueError("ALLOWED_HOSTS cannot contain '*' when DEBUG is disabled.")
 
 # Application definition
 INSTALLED_APPS = [
