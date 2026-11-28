@@ -304,7 +304,7 @@ export function DateInput({
   required = false,
   allowFuture = false,
   minYear = 1900,
-  maxYear = new Date().getFullYear(),
+  maxYear,
   invalidMessage = 'DD.MM.YYYY',
   className = '',
   placeholder = 'DD.MM.YYYY',

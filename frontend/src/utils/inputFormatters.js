@@ -123,14 +123,15 @@ export const isValidCalendarDate = (
   day,
   month,
   year,
-  { minYear = 1900, maxYear = new Date().getFullYear(), allowFuture = false } = {}
+  { minYear = 1900, maxYear, allowFuture = false } = {}
 ) => {
+  const effectiveMaxYear = maxYear ?? new Date().getFullYear();
   if (
     !Number.isInteger(day) ||
     !Number.isInteger(month) ||
     !Number.isInteger(year) ||
     year < minYear ||
-    year > maxYear ||
+    year > effectiveMaxYear ||
     month < 1 ||
     month > 12 ||
     day < 1 ||
