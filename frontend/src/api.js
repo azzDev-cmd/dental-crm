@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const configuredApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+const configuredApiUrl = import.meta.env.VITE_API_URL;
 const apiUrl = (
   configuredApiUrl ||
-  (import.meta.env.DEV ? '/api' : 'https://dental-crm-backend-516l.onrender.com/api')
+  (import.meta.env.DEV ? '/api' : 'https://dental-crm-backend-5161.onrender.com/api')
 ).replace(/\/+$/, '');
 const API_BASE_URL = /\/api$/i.test(apiUrl) ? apiUrl : `${apiUrl}/api`;
 

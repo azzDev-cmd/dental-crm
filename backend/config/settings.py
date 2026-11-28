@@ -1,6 +1,7 @@
 import os
 import warnings
 from pathlib import Path
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -13,7 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dental-clinic-super-secret
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-RENDER_HOST = 'dental-crm-backend-516l.onrender.com'
+RENDER_HOST = 'dental-crm-backend-5161.onrender.com'
 DEFAULT_ALLOWED_HOSTS = f'{RENDER_HOST},localhost,127.0.0.1'
 configured_allowed_hosts = [
     host.strip()
@@ -94,13 +95,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-# Default: SQLite (Productionda PostgreSQL ga osongina almashtirish mumkin)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=0,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
     }
-}
+    if 'pooler.supabase.com' in DATABASE_URL:
+        DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -162,5 +175,5 @@ CORS_ALLOWED_ORIGINS = [
     ).split(',')
     if origin.strip()
 ]
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 APPEND_SLASH = True
