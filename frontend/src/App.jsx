@@ -107,7 +107,7 @@ function LanguageDropdown({ language, onChange, t }) {
         <div
           role="menu"
           aria-label={t('chooseLanguage')}
-          className="absolute right-0 z-50 mt-1 w-36 rounded-2xl border border-white/60 bg-white/85 py-1 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/85"
+          className="absolute right-0 z-50 mt-1.5 w-36 rounded-2xl border border-slate-200/80 bg-white/95 py-1 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-slate-900/95"
         >
           {supportedLanguages.map((lang) => (
             <button
@@ -119,8 +119,10 @@ function LanguageDropdown({ language, onChange, t }) {
                 onChange(lang);
                 setIsOpen(false);
               }}
-              className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs transition hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                language === lang ? 'font-semibold text-sky-700' : 'text-slate-700'
+              className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/90 ${
+                language === lang
+                  ? 'font-semibold text-sky-700 dark:text-sky-300'
+                  : 'text-slate-700 dark:text-slate-200'
               }`}
             >
               {languageNames[lang]}
@@ -177,7 +179,7 @@ function ThemeDropdown({ theme, onChange, t }) {
         <div
           role="menu"
           aria-label={t('theme')}
-          className="absolute right-0 z-50 mt-1.5 w-36 rounded-xl border border-slate-100 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+          className="absolute right-0 z-50 mt-1.5 w-36 rounded-2xl border border-slate-200/80 bg-white/95 py-1 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-slate-900/95"
         >
           {options.map(({ value, label, Icon }) => (
             <button
@@ -189,7 +191,7 @@ function ThemeDropdown({ theme, onChange, t }) {
                 onChange(value);
                 setIsOpen(false);
               }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/90 ${
                 theme === value ? 'font-semibold text-sky-700 dark:text-sky-300' : 'text-slate-700 dark:text-slate-200'
               }`}
             >
