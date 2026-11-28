@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dental-clinic-super-secret
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-RENDER_HOST = 'dental-crm-backend-5161.onrender.com'
+RENDER_HOST = 'dental-crm-backend-516l.onrender.com'
 DEFAULT_ALLOWED_HOSTS = f'{RENDER_HOST},localhost,127.0.0.1'
 configured_allowed_hosts = [
     host.strip()

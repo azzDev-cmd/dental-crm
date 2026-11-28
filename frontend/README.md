@@ -2,7 +2,7 @@
 
 ## API configuration
 
-The production frontend calls `https://dental-crm-backend-5161.onrender.com/api`.
+The production frontend calls `https://dental-crm-backend-516l.onrender.com/api`.
 Set `VITE_API_URL` to that value in Vercel if you want to configure it
 explicitly; `frontend/.env.example` shows the expected format. For local Vite
 development, the default `/api` base uses the proxy in `vite.config.js` and
