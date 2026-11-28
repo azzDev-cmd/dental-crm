@@ -68,6 +68,15 @@ const formatDateTime = (dateString) => {
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 };
 
+const DROPDOWN_MENU_CLASS =
+  'absolute right-0 z-50 mt-1.5 w-40 space-y-1 rounded-2xl border border-slate-200/80 bg-white/95 p-1.5 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-[#0F172A]/95';
+const DROPDOWN_ITEM_BASE_CLASS =
+  'flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs transition-colors';
+const DROPDOWN_ITEM_ACTIVE_CLASS =
+  'bg-sky-50/90 font-semibold text-sky-700 dark:bg-sky-500/15 dark:text-sky-300';
+const DROPDOWN_ITEM_INACTIVE_CLASS =
+  'text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80';
+
 function LanguageDropdown({ language, onChange, t }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -107,7 +116,7 @@ function LanguageDropdown({ language, onChange, t }) {
         <div
           role="menu"
           aria-label={t('chooseLanguage')}
-          className="absolute right-0 z-50 mt-1.5 w-36 rounded-2xl border border-slate-200/80 bg-white/95 py-1 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-slate-900/95"
+          className={DROPDOWN_MENU_CLASS}
         >
           {supportedLanguages.map((lang) => (
             <button
@@ -119,14 +128,12 @@ function LanguageDropdown({ language, onChange, t }) {
                 onChange(lang);
                 setIsOpen(false);
               }}
-              className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/90 ${
-                language === lang
-                  ? 'font-semibold text-sky-700 dark:text-sky-300'
-                  : 'text-slate-700 dark:text-slate-200'
+              className={`${DROPDOWN_ITEM_BASE_CLASS} ${
+                language === lang ? DROPDOWN_ITEM_ACTIVE_CLASS : DROPDOWN_ITEM_INACTIVE_CLASS
               }`}
             >
-              {languageNames[lang]}
-              {language === lang && <CheckCircle2 className="h-3.5 w-3.5" />}
+              <span className="flex-1 truncate">{languageNames[lang]}</span>
+              {language === lang && <Check className="h-3.5 w-3.5 shrink-0" />}
             </button>
           ))}
         </div>
@@ -179,7 +186,7 @@ function ThemeDropdown({ theme, onChange, t }) {
         <div
           role="menu"
           aria-label={t('theme')}
-          className="absolute right-0 z-50 mt-1.5 w-36 rounded-2xl border border-slate-200/80 bg-white/95 py-1 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-slate-900/95"
+          className={DROPDOWN_MENU_CLASS}
         >
           {options.map(({ value, label, Icon }) => (
             <button
@@ -191,13 +198,13 @@ function ThemeDropdown({ theme, onChange, t }) {
                 onChange(value);
                 setIsOpen(false);
               }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/90 ${
-                theme === value ? 'font-semibold text-sky-700 dark:text-sky-300' : 'text-slate-700 dark:text-slate-200'
+              className={`${DROPDOWN_ITEM_BASE_CLASS} ${
+                theme === value ? DROPDOWN_ITEM_ACTIVE_CLASS : DROPDOWN_ITEM_INACTIVE_CLASS
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
-              <span className="flex-1">{t(label)}</span>
-              {theme === value && <Check className="h-3.5 w-3.5" />}
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="flex-1 truncate">{t(label)}</span>
+              {theme === value && <Check className="h-3.5 w-3.5 shrink-0" />}
             </button>
           ))}
         </div>
@@ -850,8 +857,12 @@ export default function App() {
 
   return (
     <div className="app-shell flex h-dvh flex-col overflow-hidden bg-[#F2F4F7] font-sans text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
-      <header className="app-header fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/85 shadow-sm backdrop-blur-xl transition-colors duration-200 dark:border-white/10 dark:bg-slate-900/85">
-        <div className="mx-auto flex max-w-md items-center justify-between px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
+      <header className="app-header fixed inset-x-0 top-0 z-50">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 border-b border-slate-200/80 bg-white/85 shadow-sm backdrop-blur-xl transition-colors duration-200 dark:border-white/10 dark:bg-slate-900/85"
+        />
+        <div className="relative mx-auto flex max-w-md items-center justify-between px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
           <div>
             <h1 className="text-lg font-bold text-sky-600 dark:text-sky-400">Dental CRM</h1>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('doctorDashboard')}</p>
