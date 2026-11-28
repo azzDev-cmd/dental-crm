@@ -10,6 +10,7 @@ import { DateInput, TelegramUsernameInput, UzbekPhoneInput } from './components/
 import translations, { languageNames, supportedLanguages } from './translations';
 import {
   formatUzbekPhoneDisplay,
+  isoToDisplayDate,
   isValidUzbekPhone,
   normalizeDateForApi,
   normalizeTelegramUsernameForApi,
@@ -1461,7 +1462,7 @@ export default function App() {
                       <p className="text-xs text-slate-400">{t('birthDate')}</p>
                       <p className="mt-0.5 font-medium text-slate-700">
                         {patientDetails.birth_date
-                          ? new Date(`${patientDetails.birth_date}T00:00:00`).toLocaleDateString(locale)
+                          ? isoToDisplayDate(patientDetails.birth_date) || formatDate(patientDetails.birth_date)
                           : t('notEntered')}
                       </p>
                     </div>

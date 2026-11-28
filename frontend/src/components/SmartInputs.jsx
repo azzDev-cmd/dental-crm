@@ -292,7 +292,7 @@ export function UzbekPhoneInput({
 }
 
 /**
- * Reusable DD/MM/YYYY date input with automatic '/' insertion, auto-advance from
+ * Reusable DD.MM.YYYY date input with automatic '.' insertion, auto-advance from
  * DD -> MM -> YYYY, invalid day/month protection, and YYYY-MM-DD API output.
  */
 export function DateInput({
@@ -305,9 +305,9 @@ export function DateInput({
   allowFuture = false,
   minYear = 1900,
   maxYear = new Date().getFullYear(),
-  invalidMessage = 'DD/MM/YYYY',
+  invalidMessage = 'DD.MM.YYYY',
   className = '',
-  placeholder = 'DD/MM/YYYY',
+  placeholder = 'DD.MM.YYYY',
   ...props
 }) {
   const inputRef = useRef(null);
@@ -359,7 +359,7 @@ export function DateInput({
       event.key === 'Backspace' &&
       selectionStart === selectionEnd &&
       selectionStart > 0 &&
-      displayValue[selectionStart - 1] === '/' &&
+      displayValue[selectionStart - 1] === '.' &&
       selectionStart < displayValue.length
     ) {
       event.preventDefault();

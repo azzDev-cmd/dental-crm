@@ -108,12 +108,12 @@ export const isValidUzbekPhone = (rawValue = '') =>
   extractUzbekPhoneLocalDigits(rawValue).length === UZ_PHONE_LOCAL_LENGTH;
 
 /**
- * Converts an ISO date ("YYYY-MM-DD") to display format ("DD/MM/YYYY").
+ * Converts an ISO date ("YYYY-MM-DD") to display format ("DD.MM.YYYY").
  */
 export const isoToDisplayDate = (isoDate = '') => {
   const match = String(isoDate ?? '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return '';
-  return `${match[3]}/${match[2]}/${match[1]}`;
+  return `${match[3]}.${match[2]}.${match[1]}`;
 };
 
 /**
@@ -195,7 +195,7 @@ const filterDateDigits = (rawDigits = '') => {
 };
 
 /**
- * Formats a DD/MM/YYYY date input while keeping "/" separators automatic and guarding invalid day/month digits.
+ * Formats a DD.MM.YYYY date input while keeping "." separators automatic and guarding invalid day/month digits.
  */
 export const formatDateInput = (rawValue = '', previousDisplayValue = '') => {
   const text = String(rawValue ?? '').trim();
@@ -204,7 +204,7 @@ export const formatDateInput = (rawValue = '', previousDisplayValue = '') => {
     const converted = `${isoMatch[3]}${isoMatch[2]}${isoMatch[1]}`;
     const validDigits = filterDateDigits(converted);
     if (validDigits.length === 8) {
-      return `${validDigits.slice(0, 2)}/${validDigits.slice(2, 4)}/${validDigits.slice(4, 8)}`;
+      return `${validDigits.slice(0, 2)}.${validDigits.slice(2, 4)}.${validDigits.slice(4, 8)}`;
     }
   }
 
@@ -220,23 +220,23 @@ export const formatDateInput = (rawValue = '', previousDisplayValue = '') => {
   if (digits.length === 0) return '';
   if (digits.length === 1) return digits;
   if (digits.length === 2) {
-    return isDeleting ? digits : `${digits}/`;
+    return isDeleting ? digits : `${digits}.`;
   }
   if (digits.length === 3) {
-    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}.${digits.slice(2)}`;
   }
   if (digits.length === 4) {
-    const base = `${digits.slice(0, 2)}/${digits.slice(2, 4)}`;
-    return isDeleting ? base : `${base}/`;
+    const base = `${digits.slice(0, 2)}.${digits.slice(2, 4)}`;
+    return isDeleting ? base : `${base}.`;
   }
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4, 8)}`;
 };
 
 /**
- * Parses a DD/MM/YYYY display string into an ISO YYYY-MM-DD string if valid, otherwise returns null.
+ * Parses a DD.MM.YYYY display string into an ISO YYYY-MM-DD string if valid, otherwise returns null.
  */
 export const parseDisplayDateToIso = (displayValue = '', options = {}) => {
-  const match = String(displayValue ?? '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  const match = String(displayValue ?? '').trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
   if (!match) return null;
 
   const day = Number(match[1]);
@@ -248,7 +248,7 @@ export const parseDisplayDateToIso = (displayValue = '', options = {}) => {
 };
 
 /**
- * Normalizes either a DD/MM/YYYY or YYYY-MM-DD date string to YYYY-MM-DD (or null if empty/invalid).
+ * Normalizes either a DD.MM.YYYY or YYYY-MM-DD date string to YYYY-MM-DD (or null if empty/invalid).
  */
 export const normalizeDateForApi = (rawValue = '', options = {}) => {
   const text = String(rawValue ?? '').trim();
