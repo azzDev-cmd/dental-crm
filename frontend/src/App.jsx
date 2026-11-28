@@ -6,7 +6,16 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, Sun, Moon, Monitor, Check, Pencil, Ban
 } from 'lucide-react';
 import { dentalApi } from './api';
+import { DateInput, TelegramUsernameInput, UzbekPhoneInput } from './components/SmartInputs';
 import translations, { languageNames, supportedLanguages } from './translations';
+import {
+  formatUzbekPhoneDisplay,
+  isValidUzbekPhone,
+  normalizeDateForApi,
+  normalizeTelegramUsernameForApi,
+  normalizeUzbekPhoneForApi,
+  stripTelegramPrefix,
+} from './utils/inputFormatters';
 
 const clinicServices = ['Tish tozalash', 'Plomba', 'Implant', 'Tish olish', 'Ko‘rik'];
 const getLocalDateTimeValue = (value = new Date()) => {
@@ -258,6 +267,7 @@ export default function App() {
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
   const [isCreatingPatient, setIsCreatingPatient] = useState(false);
   const [createPatientError, setCreatePatientError] = useState('');
+  const [isBirthDateValid, setIsBirthDateValid] = useState(true);
   const [newPatient, setNewPatient] = useState({
     first_name: '',
     last_name: '',
@@ -585,17 +595,29 @@ export default function App() {
   const handleCreatePatient = async (e) => {
     e.preventDefault();
     setCreatePatientError('');
+
+    if (!isValidUzbekPhone(newPatient.phone)) {
+      setCreatePatientError(t('invalidPhone'));
+      return;
+    }
+    if (!isBirthDateValid) {
+      setCreatePatientError(t('invalidBirthDate'));
+      return;
+    }
+
     setIsCreatingPatient(true);
 
     try {
       await dentalApi.createPatient({
         ...newPatient,
-        telegram_username: newPatient.telegram_username.trim().replace(/^@/, '') || null,
-        birth_date: newPatient.birth_date || null,
+        phone: normalizeUzbekPhoneForApi(newPatient.phone),
+        telegram_username: normalizeTelegramUsernameForApi(newPatient.telegram_username),
+        birth_date: normalizeDateForApi(newPatient.birth_date),
         medical_notes: newPatient.medical_notes.trim()
       });
 
       setIsPatientModalOpen(false);
+      setIsBirthDateValid(true);
       setNewPatient({
         first_name: '',
         last_name: '',
@@ -1004,7 +1026,7 @@ export default function App() {
                       <h3 className="font-semibold text-base text-slate-800">{item.patient?.full_name}</h3>
                       <div className="flex items-center text-xs text-slate-500 mt-0.5">
                         <Phone className="w-3.5 h-3.5 mr-1" />
-                        {item.patient?.phone}
+                        {formatUzbekPhoneDisplay(item.patient?.phone)}
                       </div>
                     </div>
                     <span className="text-xs font-semibold px-2 py-1 rounded bg-sky-50 text-sky-600">
@@ -1136,7 +1158,7 @@ export default function App() {
                 >
                   <div>
                     <p className="font-semibold text-slate-800 text-sm">{p.full_name}</p>
-                    <p className="text-xs text-slate-400">{p.phone}</p>
+                    <p className="text-xs text-slate-400">{formatUzbekPhoneDisplay(p.phone)}</p>
                   </div>
                   <div className="text-right">
                     <span className="mb-1 block text-xs text-slate-400">{t('balance')}</span>
@@ -1184,7 +1206,7 @@ export default function App() {
                 >
                   <option value="">{t('selectPatientOption')}</option>
                   {patients.map(p => (
-                    <option key={p.id} value={p.id}>{p.full_name} ({p.phone})</option>
+                    <option key={p.id} value={p.id}>{p.full_name} ({formatUzbekPhoneDisplay(p.phone)})</option>
                   ))}
                 </select>
               </div>
@@ -1433,7 +1455,7 @@ export default function App() {
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <p className="text-xs text-slate-400">{t('phone')}</p>
-                      <p className="mt-0.5 font-medium text-slate-700">{patientDetails.phone}</p>
+                      <p className="mt-0.5 font-medium text-slate-700">{formatUzbekPhoneDisplay(patientDetails.phone)}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-400">{t('birthDate')}</p>
@@ -1443,17 +1465,17 @@ export default function App() {
                           : t('notEntered')}
                       </p>
                     </div>
-                    {patientDetails.telegram_username && (
+                    {stripTelegramPrefix(patientDetails.telegram_username) && (
                       <div className="col-span-2">
                         <p className="text-xs text-slate-400">{t('telegram_username')}</p>
                         <a
-                          href={`https://t.me/${encodeURIComponent(patientDetails.telegram_username.replace(/^@/, ''))}`}
+                          href={`https://t.me/${encodeURIComponent(stripTelegramPrefix(patientDetails.telegram_username))}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-0.5 inline-flex items-center gap-1.5 font-medium text-sky-600 transition hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300"
                         >
                           <Send className="h-3.5 w-3.5" />
-                          @{patientDetails.telegram_username.replace(/^@/, '')}
+                          @{stripTelegramPrefix(patientDetails.telegram_username)}
                         </a>
                       </div>
                     )}
@@ -2144,14 +2166,13 @@ export default function App() {
                 <label htmlFor="patient-phone" className="mb-1 block text-sm font-medium text-slate-600">
                   {t('phoneNumber')} <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <UzbekPhoneInput
                   id="patient-phone"
-                  type="tel"
                   placeholder={t('phoneExample')}
                   value={newPatient.phone}
-                  onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-                  autoComplete="tel"
+                  onChange={(phone) => setNewPatient({ ...newPatient, phone })}
+                  invalidMessage={t('invalidPhone')}
+                  className="rounded-lg bg-white py-2 dark:bg-slate-800"
                   required
                 />
               </div>
@@ -2162,13 +2183,12 @@ export default function App() {
                 </label>
                 <div className="relative">
                   <Send className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
+                  <TelegramUsernameInput
                     id="patient-telegram-username"
-                    type="text"
                     placeholder={t('telegramUsernamePlaceholder')}
                     value={newPatient.telegram_username}
-                    onChange={(e) => setNewPatient({ ...newPatient, telegram_username: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400"
+                    onChange={(telegram_username) => setNewPatient({ ...newPatient, telegram_username })}
+                    className="pl-10 pr-3"
                     autoComplete="off"
                   />
                 </div>
@@ -2178,12 +2198,14 @@ export default function App() {
                 <label htmlFor="patient-birth-date" className="mb-1 block text-sm font-medium text-slate-600">
                   {t('birthDate')}
                 </label>
-                <input
+                <DateInput
                   id="patient-birth-date"
-                  type="date"
+                  placeholder={t('birthDatePlaceholder')}
+                  invalidMessage={t('invalidBirthDate')}
                   value={newPatient.birth_date}
-                  onChange={(e) => setNewPatient({ ...newPatient, birth_date: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                  onChange={(birth_date) => setNewPatient({ ...newPatient, birth_date })}
+                  onValidityChange={setIsBirthDateValid}
+                  className="rounded-lg bg-white py-2 dark:bg-slate-800"
                 />
               </div>
 

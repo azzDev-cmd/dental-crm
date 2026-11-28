@@ -1,4 +1,9 @@
 import axios from 'axios';
+import {
+  normalizeDateForApi,
+  normalizeTelegramUsernameForApi,
+  normalizeUzbekPhoneForApi,
+} from './utils/inputFormatters';
 
 const configuredApiUrl = import.meta.env.VITE_API_URL;
 const apiUrl = (
@@ -47,7 +52,16 @@ export const dentalApi = {
   // Bemorlar
   getPatients: (search = '') => api.get('/patients/', noCacheParams(search ? { search } : {})),
   getPatient: (id) => api.get(`/patients/${id}/`, noCacheParams()),
-  createPatient: (data) => api.post('/patients/', data),
+  createPatient: (data) => api.post('/patients/', {
+    ...data,
+    ...(data.phone !== undefined ? { phone: normalizeUzbekPhoneForApi(data.phone) } : {}),
+    ...(data.telegram_username !== undefined
+      ? { telegram_username: normalizeTelegramUsernameForApi(data.telegram_username) }
+      : {}),
+    ...(data.birth_date !== undefined
+      ? { birth_date: normalizeDateForApi(data.birth_date) }
+      : {}),
+  }),
 
   // Bemor uchun rejalashtirilgan xizmat
   planPatientService: (data) => api.post('/appointments/plan-service/', data),
