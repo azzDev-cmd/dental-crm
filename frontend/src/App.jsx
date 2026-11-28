@@ -36,6 +36,28 @@ const formatDate = (dateString) => {
   const [year, month, day] = dateString.split('-');
   return `${day}.${month}.${year}`;
 };
+const DOCTOR_PROFILE_STORAGE_KEY = 'doctor_profile';
+const DEFAULT_DOCTOR_PROFILE = {
+  name: 'Dr. Azizbek',
+  specialty: 'Stomatolog-terapevt',
+  clinic: 'Dental CRM',
+};
+const getInitialDoctorProfile = () => {
+  try {
+    const rawProfile = window.localStorage.getItem(DOCTOR_PROFILE_STORAGE_KEY);
+    if (!rawProfile) return DEFAULT_DOCTOR_PROFILE;
+    const parsed = JSON.parse(rawProfile);
+    if (!parsed || typeof parsed !== 'object') return DEFAULT_DOCTOR_PROFILE;
+    return {
+      name: String(parsed.name ?? '').trim() || DEFAULT_DOCTOR_PROFILE.name,
+      specialty: String(parsed.specialty ?? '').trim() || DEFAULT_DOCTOR_PROFILE.specialty,
+      clinic: String(parsed.clinic ?? '').trim() || DEFAULT_DOCTOR_PROFILE.clinic,
+    };
+  } catch (error) {
+    console.warn('Could not read the saved doctor profile:', error);
+    return DEFAULT_DOCTOR_PROFILE;
+  }
+};
 const getInitialLanguage = () => {
   try {
     const savedLanguage = window.localStorage.getItem('app_lang');
@@ -215,6 +237,8 @@ function ThemeDropdown({ theme, onChange, t }) {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('today'); // 'today' | 'patients' | 'add'
+  const [doctorProfile, setDoctorProfile] = useState(getInitialDoctorProfile);
+  const [profileEdit, setProfileEdit] = useState(null);
   const [language, setLanguage] = useState(getInitialLanguage);
   const [theme, setTheme] = useState(() => {
     try {
@@ -459,6 +483,32 @@ export default function App() {
       fetchPatients(searchQuery);
     }
   }, [activeTab, searchQuery]);
+
+  const openProfileEdit = () => {
+    setProfileEdit({
+      name: doctorProfile.name,
+      specialty: doctorProfile.specialty,
+      clinic: doctorProfile.clinic,
+    });
+  };
+
+  const handleSaveProfile = (event) => {
+    event.preventDefault();
+    if (!profileEdit) return;
+
+    const updatedProfile = {
+      name: profileEdit.name.trim() || DEFAULT_DOCTOR_PROFILE.name,
+      specialty: profileEdit.specialty.trim() || DEFAULT_DOCTOR_PROFILE.specialty,
+      clinic: profileEdit.clinic.trim() || DEFAULT_DOCTOR_PROFILE.clinic,
+    };
+    setDoctorProfile(updatedProfile);
+    try {
+      window.localStorage.setItem(DOCTOR_PROFILE_STORAGE_KEY, JSON.stringify(updatedProfile));
+    } catch (error) {
+      console.warn('Could not save the doctor profile:', error);
+    }
+    setProfileEdit(null);
+  };
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -862,12 +912,17 @@ export default function App() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 border-b border-slate-200/80 bg-white/85 shadow-sm backdrop-blur-xl transition-colors duration-200 dark:border-white/10 dark:bg-slate-900/85"
         />
-        <div className="relative mx-auto flex max-w-md items-center justify-between px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
-          <div>
-            <h1 className="text-lg font-bold text-sky-600 dark:text-sky-400">Dental CRM</h1>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('doctorDashboard')}</p>
+        <div className="relative mx-auto flex max-w-md items-center justify-between gap-2 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-lg font-bold text-sky-600 dark:text-sky-400">
+              {doctorProfile.clinic}
+            </h1>
+            <p className="flex items-center gap-1.5 truncate text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="truncate">{doctorProfile.name}</span>
+            </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <ThemeDropdown theme={theme} onChange={setTheme} t={t} />
             <LanguageDropdown language={language} onChange={setLanguage} t={t} />
             <button 
@@ -1341,9 +1396,19 @@ export default function App() {
 
         {activeTab === 'profile' && (
           <section className="flex flex-col transition-transform duration-300 ease-out">
-            <header className="mt-2 mb-4 px-1">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('profile')}</h2>
-              <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{t('profileSubtitle')}</p>
+            <header className="mt-2 mb-4 flex items-center justify-between gap-3 px-1">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('profile')}</h2>
+                <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{t('profileSubtitle')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={openProfileEdit}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 active:scale-95 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                {t('edit')}
+              </button>
             </header>
 
             <div className="glass-card mb-3 overflow-hidden rounded-3xl">
@@ -1352,14 +1417,9 @@ export default function App() {
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/25">
                     <UserCircle className="h-8 w-8" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-sky-100">{t('doctor')}</p>
-                    <h3 className="truncate text-lg font-bold">
-                      {[
-                        window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name,
-                        window.Telegram?.WebApp?.initDataUnsafe?.user?.last_name
-                      ].filter(Boolean).join(' ') || t('doctor')}
-                    </h3>
+                    <h3 className="truncate text-lg font-bold">{doctorProfile.name}</h3>
                   </div>
                 </div>
               </div>
@@ -1369,18 +1429,22 @@ export default function App() {
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
                     <Stethoscope className="h-4 w-4" />
                   </span>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs text-slate-400">{t('specialist')}</p>
-                    <p className="mt-0.5 text-sm font-semibold text-slate-700">{t('dentist')}</p>
+                    <p className="mt-0.5 truncate text-sm font-semibold text-slate-700">
+                      {!doctorProfile.specialty || doctorProfile.specialty === DEFAULT_DOCTOR_PROFILE.specialty
+                        ? t('defaultSpecialty')
+                        : doctorProfile.specialty}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 py-4">
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                     <Building2 className="h-4 w-4" />
                   </span>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs text-slate-400">{t('clinic')}</p>
-                    <p className="mt-0.5 text-sm font-semibold text-slate-700">Dental CRM</p>
+                    <p className="mt-0.5 truncate text-sm font-semibold text-slate-700">{doctorProfile.clinic}</p>
                   </div>
                 </div>
                 {window.Telegram?.WebApp?.initDataUnsafe?.user?.username && (
@@ -2258,6 +2322,100 @@ export default function App() {
                 >
                   {isCreatingPatient && <RefreshCw className="h-4 w-4 animate-spin" />}
                   {isCreatingPatient ? t('saving') : t('save')}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
+      {profileEdit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          onClick={() => setProfileEdit(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-profile-title"
+            className="glass-modal max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 id="edit-profile-title" className="text-lg font-bold text-slate-800 dark:text-white">
+                  {t('editProfile')}
+                </h2>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t('profileSubtitle')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProfileEdit(null)}
+                aria-label={t('closeModal')}
+                className="rounded-xl p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </header>
+
+            <form onSubmit={handleSaveProfile} className="space-y-3">
+              <div>
+                <label htmlFor="doctor-profile-name" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
+                  {t('doctorName')} <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="doctor-profile-name"
+                  type="text"
+                  value={profileEdit.name}
+                  onChange={(event) => setProfileEdit({ ...profileEdit, name: event.target.value })}
+                  placeholder={t('doctorNamePlaceholder')}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="doctor-profile-specialty" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
+                  {t('specialist')}
+                </label>
+                <input
+                  id="doctor-profile-specialty"
+                  type="text"
+                  value={profileEdit.specialty}
+                  onChange={(event) => setProfileEdit({ ...profileEdit, specialty: event.target.value })}
+                  placeholder={t('specialtyPlaceholder')}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="doctor-profile-clinic" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
+                  {t('clinicName')} <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="doctor-profile-clinic"
+                  type="text"
+                  value={profileEdit.clinic}
+                  onChange={(event) => setProfileEdit({ ...profileEdit, clinic: event.target.value })}
+                  placeholder={t('clinicNamePlaceholder')}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setProfileEdit(null)}
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
+                >
+                  {t('save')}
                 </button>
               </div>
             </form>
